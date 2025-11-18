@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mutlu Yıllar!</title>
+  <style>
+    /* Temel stiller */
+    :root{
+      --bg:#8b0000; /* koyu kırmızı arka plan */
+      --card:#3b4b00cc; /* kırmızı ton kart */
+      --accent:#ffd700; /* sarı */
+      --text:#ffd700;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{
+      background: radial-gradient(1200px 600px at 10% 20%, #10233a44 0%, transparent 15%),
+                  radial-gradient(900px 500px at 90% 80%, #2b134044 0%, transparent 12%),
+                  var(--bg);
+      color:var(--text);
+      display:flex;align-items:center;justify-content:center;padding:24px;
+    }
+
+    /* Kart */
+    .card{
+      width:100%;max-width:980px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(2,6,23,0.6);position:relative;overflow:hidden;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    header{display:flex;gap:16px;align-items:center}
+    .logo{
+      width:74px;height:74px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg, rgba(255,64,129,0.18), rgba(99,102,241,0.08));
+      border:1px solid rgba(255,255,255,0.04);
+      font-weight:700;font-size:18px;color:var(--text)
+    }
+    h1{margin:0;font-size:28px}
+    p.lead{margin:6px 0 0 0;opacity:0.9}
+
+    /* Sayfa içeriği */
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;margin-top:18px}
+    .left{padding:12px}
+    .right{padding:12px}
+
+    /* Kutlama başlığı ve butonlar */
+    .big-message{font-size:42px;margin:12px 0 8px 0;line-height:1.04}
+    .sub{opacity:0.95;margin-bottom:12px}
+    .controls{display:flex;gap:10px;margin-top:12px}
+    .btn{background:var(--accent);border:none;color:white ;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+
+    /* Geri sayım */
+    .countdown{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px;text-align:center}
+    .countdown .nums{display:flex;gap:8px;justify-content:center}
+    .countdown .num{min-width:62px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);backdrop-filter:blur(4px)}
+    .num .v{font-size:20px;font-weight:700}
+    .num .l{font-size:12px;opacity:0.8}
+
+    /* Balonlar */
+    .balloons{position:absolute;inset:0;pointer-events:none}
+    .balloon{position:absolute;bottom:-150px;width:48px;height:64px;border-radius:50% 50% 50% 50%;transform-origin:center bottom;opacity:0.95}
+    .balloon:after{content:'';position:absolute;left:50%;transform:translateX(-50%);width:2px;height:60px;background:transparent;bottom:-56px}
+
+    /* Mesaj kutusu */
+    .card .message{margin-top:8px;padding:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:10px}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .grid{grid-template-columns:1fr}
+      .right{order:-1}
+      .big-message{font-size:34px}
+    }
+
+    /* Konfeti canvas */
+    #confetti{position:absolute;inset:0;pointer-events:none}
+
+    /* Küçük animasyonlar */
+    @keyframes floatUp{0%{transform:translateY(0) rotate(0deg)}100%{transform:translateY(-120vh) rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <canvas id="confetti"></canvas>
+    <div class="balloons" aria-hidden="true" id="balloonWrapper"></div>
+
+    <header>
+      <div class="logo">👸</div>
+      <div>
+        <h1 id="title">DOĞUM GÜNÜN KUTLU OLSUN, <span id="personName"></span>! 👸✨</h1>
+        <p class="lead"></p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="left">
+        <div class="big-message" id="bigMsg">DOĞUM GÜNÜN KUTLU OLSUN! 👸🥳✨</div>
+        <div class="sub">Bugünü özel kılmak için confetti, balonlar ve bir geri sayım hazırladı.</div>
+
+        <div class="controls">
+          <button class="btn" id="btnConfetti">KONFETİ BAŞLAT</button>
+          <button class="btn ghost" id="btnBalloons">BALONLARI GÖSTER</button>
+         
+        </div>
+
+        <div class="message" style="margin-top:18px">
+          <strong>Özel Mesaj 👸✨:</strong>
+          <p id="personalMsg">Doğum günün kutlu olsun sevgilim.İyi ki doğdun iyi ki varsın. ❤️😘<n>
+          <br>Yeni yaşında, hayallerin gerçeğe dönüşsün,kahkahaların hiç eksik olmasın. Nice güzel yaşlara. <br>
+        Bide yaş 61 mi oldu?😄
+        </p>
+        </div>
+
+      </div>
+
+      <aside class="right">
+        <div class="countdown" aria-live="polite">
+          <div style="font-weight:700;margin-bottom:10px">Geri Sayım</div>
+          <div class="nums">
+            <div class="num"><div class="v" id="days">0</div><div class="l">Gün</div></div>
+            <div class="num"><div class="v" id="hours">0</div><div class="l">Saat</div></div>
+            <div class="num"><div class="v" id="minutes">0</div><div class="l">Dakika</div></div>
+            <div class="num"><div class="v" id="seconds">0</div><div class="l">Saniye</div></div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <label style="display:block;margin-bottom:6px">Kişinin adı</label>
+          <input id="inputName" placeholder="İsim gir (örn. Ali)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)" />
+        </div>
+
+        <div style="margin-top:12px">
+          <label style="display:block;margin-bottom:6px">Doğum günü tarihi</label>
+          <input id="inputDate" type="date" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)" />
+        </div>
+
+      </aside>
+    </div>
+
+    <footer style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div style="opacity:0.85">Hazırla: <strong>ninemin doğum günüsüüüü👸✨</strong></div>
+      <div style="opacity:0.7;font-size:13px">Kaydetmek için sayfayı kaydet (Save as -> index.html)</div>
+    </footer>
+
+    <!-- Opsiyonel: Müzik kaynağı. Kullanıcı değiştirebilir -->
+    <audio id="bgMusic" autoplay loop>
+  <source src="mutlu-yillar.mp3" type="audio/mpeg">
+</audio>
+
+
+
+<button onclick="document.getElementById('bgMusic').play()" style="padding:15px; font-size:20px; border-radius:10px; margin-top:20px;">
+    🎵 Müziği Başlat
+</button>
+<button onclick="document.getElementById('bgMusic').pause()" style="padding:15px; font-size:20px; border-radius:10px; margin-top:20px;">
+    🎵 Müziği Durdur
+</button>
+  </div>
+
+  <script>
+    // Basit confetti görüntüsü (canvas tabanlı)
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+    function resizeCanvas(){confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight}
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+    function rand(min,max){return Math.random()*(max-min)+min}
+
+    function spawnConfetti(x,y,count=40){
+      for(let i=0;i<count;i++){
+        confettiParticles.push({x:x||window.innerWidth/2,y:y||window.innerHeight/2, vx:rand(-6,6), vy:rand(-10,-2), size:rand(6,14), life:rand(60,140), rot:rand(0,360), vr:rand(-8,8), color:`hsl(${Math.floor(rand(0,360))} 90% 60%)`});
+      }
+    }
+
+    function updateConfetti(){
+      ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+      for(let i=confettiParticles.length-1;i>=0;i--){
+        let p = confettiParticles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.35; p.rot += p.vr; p.life--;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle = p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+        ctx.restore();
+        if(p.y > confettiCanvas.height + 50 || p.life <= 0) confettiParticles.splice(i,1);
+      }
+      requestAnimationFrame(updateConfetti);
+    }
+    updateConfetti();
+
+    // Balon oluşturucu (CSS animasyon ile yukarı uçurur)
+    const balloonWrapper = document.getElementById('balloonWrapper');
+    function makeBalloon(x){
+      const b = document.createElement('div'); b.className='balloon';
+      const hue = Math.floor(rand(0,360));
+      b.style.left = (x||rand(5,95))+'%';
+      b.style.background = `linear-gradient(180deg, hsl(${hue} 90% 70%), hsl(${hue} 70% 50%))`;
+      b.style.animation = `floatUp ${rand(8,18)}s linear forwards`;
+      b.style.transform = `translateY(0) rotate(${rand(-20,20)}deg)`;
+      b.style.width = rand(36,70)+'px'; b.style.height = (parseInt(b.style.width,10)*1.25)+'px';
+      balloonWrapper.appendChild(b);
+      setTimeout(()=>{b.remove()},20000);
+    }
+
+    // Element referansları
+    const btnConfetti = document.getElementById('btnConfetti');
+    const btnBalloons = document.getElementById('btnBalloons');
+    const btnPlay = document.getElementById('btnPlay');
+    const personNameEl = document.getElementById('personName');
+    const bigMsg = document.getElementById('bigMsg');
+    const inputName = document.getElementById('inputName');
+    const inputDate = document.getElementById('inputDate');
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const personalMsg = document.getElementById('personalMsg');
+    const bgMusic = document.getElementById('bgMusic');
+
+    // Butonlar
+    btnConfetti.addEventListener('click',()=>{spawnConfetti(window.innerWidth/2, window.innerHeight/3, 120)});
+    btnBalloons.addEventListener('click',()=>{for(let i=0;i<10;i++) setTimeout(()=>makeBalloon(), i*300)});
+
+    // Müzik oynatma: kullanıcı kendi mp3'ünü ekleyebilir. Oynat/durdur toggle
+ 
+
+    // Ad ve mesaj güncelleme
+    inputName.addEventListener('input', ()=>{
+      const v = inputName.value.trim() || 'Sevgili Dost';
+      personNameEl.textContent = v;
+      bigMsg.textContent = `Mutlu Yıllar, ${v}! 🎂`;
+      document.title = `Mutlu Yıllar, ${v}`;
+    });
+
+    // Geri sayım fonksiyonu
+    function setTargetDateFromInput(){
+      const val = inputDate.value; if(!val) return null;
+      // Tarih girişinden gelecek yıl mı bugünkü yıl mı karar ver -> eğer bu yıl geçtiyse gelecek yıla al
+      const parts = val.split('-');
+      if(parts.length !== 3) return null;
+      const [y,m,d] = parts; // y-m-d
+      const today = new Date();
+      let target = new Date(today.getFullYear(), parseInt(m,10)-1, parseInt(d,10), 0,0,0);
+      if(target < today) target = new Date(today.getFullYear()+1, parseInt(m,10)-1, parseInt(d,10),0,0,0);
+      return target;
+    }
+
+    function updateCountdown(){
+      const target = setTargetDateFromInput();
+      if(!target){daysEl.textContent='-';hoursEl.textContent='-';minutesEl.textContent='-';secondsEl.textContent='-';return}
+      const now = new Date();
+      const diff = Math.max(0, Math.floor((target - now)/1000));
+      if(diff <= 0){daysEl.textContent='0';hoursEl.textContent='0';minutesEl.textContent='0';secondsEl.textContent='0';
+        // otomatik olarak kutlama başlatılabilir
+        spawnConfetti(window.innerWidth/2, window.innerHeight/3, 180);
+        for(let i=0;i<14;i++) setTimeout(()=>makeBalloon(), i*160);
+        return;
+      }
+      const days = Math.floor(diff / (3600*24));
+      const hours = Math.floor((diff % (3600*24))/3600);
+      const minutes = Math.floor((diff % 3600)/60);
+      const seconds = diff % 60;
+      daysEl.textContent = days; hoursEl.textContent = hours; minutesEl.textContent = minutes; secondsEl.textContent = seconds;
+    }
+    setInterval(updateCountdown, 1000);
+
+    // Sayfa yüklendiğinde küçük demo verisi
+    window.addEventListener('load', ()=>{
+      inputName.value = 'PRENSES';
+      inputDate.value = "2025-11-19";
+      inputName.dispatchEvent(new Event('input'));
+      updateCountdown();
+    });
+
+    // Sürükleyici küçük easter egg: çift tıkla başlıkta konfeti
+    document.getElementById('title').addEventListener('dblclick', ()=>{spawnConfetti(); for(let i=0;i<8;i++) setTimeout(()=>makeBalloon(), i*200)});
+
+    // Klavye kısayolu: space = konfeti
+    window.addEventListener('keydown',(e)=>{if(e.code==='Space'){e.preventDefault(); spawnConfetti();}});
+
+    // Kullanıcı talimatı: sayfayı kaydet ve paylaş
+    // --- İsteğe göre kişiselleştirin: başlıktaki emoji, renkler veya müzik kaynağını değiştirin.
+  </script>
+</body>
+</html>
